@@ -1,0 +1,170 @@
+DROP SCHEMA IF EXISTS oper_cha CASCADE;
+CREATE SCHEMA oper_cha;
+
+SET search_path=oper_cha;
+
+CREATE TABLE Funcionario
+(
+ FuncPrimNome VARCHAR(255) NOT NULL,
+ FuncUltimoNome VARCHAR(255) NOT NULL,
+ FuncCPF CHAR(11) NOT NULL,
+ FuncDtNasc DATE NOT NULL,
+ FuncCargo VARCHAR(100) NOT NULL,
+ FuncSalario FLOAT NOT NULL,
+ FuncTelefone VARCHAR(20) NOT NULL,
+ PRIMARY KEY (FuncCPF)
+);
+
+CREATE TABLE Corretor
+(
+ CorretorRegistro VARCHAR(100) NOT NULL,
+ OrcamentoMes FLOAT NOT NULL,
+ FuncCPF CHAR(11) NOT NULL,
+ PRIMARY KEY (FuncCPF),
+ FOREIGN KEY (FuncCPF) REFERENCES Funcionario(FuncCPF),
+ UNIQUE (CorretorRegistro)
+);
+
+CREATE TABLE Regiao
+(
+ RegiaoID INT NOT NULL,
+ RegiaoNome VARCHAR(100) NOT NULL,
+ FuncCPF CHAR(11) NOT NULL,
+ PRIMARY KEY (RegiaoID),
+ FOREIGN KEY (FuncCPF) REFERENCES Corretor(FuncCPF)
+);
+
+CREATE TABLE UF
+(
+ UF CHAR(2) NOT NULL,
+ UFEstadoNome VARCHAR(100) NOT NULL,
+ PRIMARY KEY (UF)
+);
+
+CREATE TABLE CEP
+(
+ TipoLogradouro VARCHAR(50) NOT NULL,
+ CEP VARCHAR(9) NOT NULL,
+ CEPMunicipio VARCHAR(100) NOT NULL,
+ NmLogradouro VARCHAR(255) NOT NULL,
+ UF CHAR(2) NOT NULL,
+ PRIMARY KEY (CEP),
+ FOREIGN KEY (UF) REFERENCES UF(UF)
+);
+
+CREATE TABLE Endereco
+(
+ EndID INT NOT NULL,
+ EndNumero INT,
+ EndComplemento VARCHAR(255),
+ EndBairro VARCHAR(255) NOT NULL,
+ CEP VARCHAR(9) NOT NULL,
+ RegiaoID INT NOT NULL,
+ PRIMARY KEY (EndID),
+ FOREIGN KEY (CEP) REFERENCES CEP(CEP),
+ FOREIGN KEY (RegiaoID) REFERENCES Regiao(RegiaoID)
+);
+
+CREATE TABLE Imovel
+(
+ ImovelID INT NOT NULL,
+ ImovelTipo VARCHAR(100) NOT NULL,
+ ImovelQtdQuartos INT NOT NULL,
+ ImovelQtdBanheiros INT NOT NULL,
+ ImovelQtdGaragem INT NOT NULL,
+ ImovelM2 INT NOT NULL,
+ ImovelValor FLOAT NOT NULL,
+ ImovelVazio BOOLEAN NOT NULL,
+ EndID INT NOT NULL,
+ PRIMARY KEY (ImovelID),
+ FOREIGN KEY (EndID) REFERENCES Endereco(EndID)
+);
+
+CREATE TABLE Anuncio
+(
+ AnuncioID INT NOT NULL,
+ AnuncioMidia VARCHAR(100) NOT NULL,
+ AnuncioPreco FLOAT NOT NULL,
+ AnuncioData DATE NOT NULL,
+ ImovelID INT NOT NULL,
+ FuncCPF CHAR(11) NOT NULL,
+ PRIMARY KEY (AnuncioID),
+ FOREIGN KEY (ImovelID) REFERENCES Imovel(ImovelID),
+ FOREIGN KEY (FuncCPF) REFERENCES Corretor(FuncCPF)
+);
+
+CREATE TABLE Cliente
+(
+ ClientePrimNome VARCHAR(255) NOT NULL,
+ CliUltimoNome VARCHAR(255) NOT NULL,
+ ClienteCPF CHAR(11) NOT NULL,
+ ClienteDtNasc DATE NOT NULL,
+ ClienteTelefone VARCHAR(50) NOT NULL,
+ EndID INT NOT NULL,
+ PRIMARY KEY (ClienteCPF),
+ FOREIGN KEY (EndID) REFERENCES Endereco(EndID)
+);
+
+CREATE TABLE Contato
+(
+ ContatoID INT NOT NULL,
+ ContatoMeio VARCHAR(255) NOT NULL,
+ ContatoNatureza VARCHAR(255) NOT NULL,
+ ContatoNome VARCHAR(255) NOT NULL,
+ ContatoTelefone VARCHAR(100) NOT NULL,
+ DtContato DATE NOT NULL,
+ FuncCPF CHAR(11) NOT NULL,
+ ClienteCPF CHAR(11) NOT NULL,
+ ImovelID INT NOT NULL,
+ PRIMARY KEY (ContatoID),
+ FOREIGN KEY (FuncCPF) REFERENCES Funcionario(FuncCPF),
+ FOREIGN KEY (ClienteCPF) REFERENCES Cliente(ClienteCPF),
+ FOREIGN KEY (ImovelID) REFERENCES Imovel(ImovelID)
+);
+
+CREATE TABLE TransVenda
+(
+ TransVendaID INT NOT NULL,
+ TransVendaValor FLOAT NOT NULL,
+ TransVendaData DATE NOT NULL,
+ TransComissao FLOAT NOT NULL,
+ FuncCPF CHAR(11) NOT NULL,
+ PRIMARY KEY (TransVendaID),
+ FOREIGN KEY (FuncCPF) REFERENCES Corretor(FuncCPF)
+);
+
+CREATE TABLE CliPropriedade
+(
+ ImovelID INT NOT NULL,
+ ClienteCPF CHAR(11) NOT NULL,
+ PRIMARY KEY (ImovelID, ClienteCPF),
+ FOREIGN KEY (ImovelID) REFERENCES Imovel(ImovelID),
+ FOREIGN KEY (ClienteCPF) REFERENCES Cliente(ClienteCPF)
+);
+
+CREATE TABLE ImovelTransacao
+(
+ ImovelID INT NOT NULL,
+ TransVendaID INT NOT NULL,
+ PRIMARY KEY (ImovelID, TransVendaID),
+ FOREIGN KEY (ImovelID) REFERENCES Imovel(ImovelID),
+ FOREIGN KEY (TransVendaID) REFERENCES TransVenda(TransVendaID)
+);
+
+CREATE TABLE ClienteCompra
+(
+ TransVendaID INT NOT NULL,
+ ClienteCPF CHAR(11) NOT NULL,
+ PRIMARY KEY (TransVendaID, ClienteCPF),
+ FOREIGN KEY (TransVendaID) REFERENCES TransVenda(TransVendaID),
+ FOREIGN KEY (ClienteCPF) REFERENCES Cliente(ClienteCPF)
+);
+
+CREATE TABLE ClienteVende
+(
+ TransVendaID INT NOT NULL,
+ ClienteCPF CHAR(11) NOT NULL,
+ PRIMARY KEY (TransVendaID, ClienteCPF),
+ FOREIGN KEY (TransVendaID) REFERENCES TransVenda(TransVendaID),
+ FOREIGN KEY (ClienteCPF) REFERENCES Cliente(ClienteCPF)
+);
