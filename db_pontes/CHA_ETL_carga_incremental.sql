@@ -175,7 +175,7 @@ WHERE NOT EXISTS (
 );
 
 -- 8) Receita_Agregada_FACT
--- Grão: 1 linha por (endereço do imóvel, dia) 
+-- Grão: 1 linha por (imóvel, dia) 
 TRUNCATE TABLE Receita_Agregada_FACT;
 
 INSERT INTO Receita_Agregada_FACT (ra_comissao_total, im_SK, dt_SK)

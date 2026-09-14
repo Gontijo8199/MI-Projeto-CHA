@@ -122,7 +122,7 @@ JOIN Cliente_DIMENSION cl
    AND cl.cl_is_atual = TRUE;
 
 -- 8) Receita_Agregada_FACT
--- Grão: 1 linha por (imóvel, mês) — soma da comissão no período
+-- Grão: 1 linha por (imóvel, dia)
 INSERT INTO Receita_Agregada_FACT (ra_comissao_total, im_SK, dt_SK)
 SELECT
     SUM(tv.TransComissao) AS ra_comissao_total,

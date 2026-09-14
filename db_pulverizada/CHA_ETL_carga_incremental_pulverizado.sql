@@ -132,7 +132,8 @@ WHERE NOT EXISTS (
 
 -- 5) Trans_Venda_FACT — insere só transações que ainda não estão na fato 
 INSERT INTO Trans_Venda_FACT (
-    tv_ID, tv_valor, tv_valor_cliente, tv_comissao, tv_tipo_cliente,
+    tv_ID, tv_valor, tv_valor_cliente, 
+    tv_comissao, tv_comissao_cliente, tv_tipo_cliente,
     tv_total_compradores, tv_total_vendedores,
     cor_SK, im_SK, cl_SK, dt_SK
 )
@@ -177,6 +178,12 @@ SELECT
         ELSE NULL
     END,
 
+    CASE
+        WHEN p.tipo_cliente = 'COMPRADOR' THEN p.TransComissao / p.total_compradores
+        WHEN p.tipo_cliente = 'VENDEDOR' THEN p.TransComissao / p.total_vendedores
+        ELSE NULL
+    END,
+
     p.TransComissao,
     p.tipo_cliente,
     p.total_compradores,
@@ -198,12 +205,14 @@ JOIN Cliente_DIMENSION cl
 JOIN Data_DIMENSION dt
     ON dt.dt_data_completa = p.TransVendaData
 WHERE NOT EXISTS (
-    SELECT 1 FROM Trans_Venda_FACT fv 
+    SELECT 1 FROM Trans_Venda_FACT fv
     WHERE fv.tv_ID = p.TransVendaID
+      AND fv.cl_SK = cl.cl_SK
+      AND fv.tv_tipo_cliente = p.tipo_cliente
 );
 
 -- 6) Receita_Agregada_FACT
--- Grão: 1 linha por (endereço do imóvel, dia) 
+-- Grão: 1 linha por (imóvel, dia) 
 TRUNCATE TABLE Receita_Agregada_FACT;
 
 INSERT INTO Receita_Agregada_FACT (ra_comissao_total, im_SK, dt_SK)

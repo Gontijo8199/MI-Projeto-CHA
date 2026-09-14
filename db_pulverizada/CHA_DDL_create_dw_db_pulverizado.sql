@@ -74,6 +74,7 @@ CREATE TABLE Trans_Venda_FACT
   tv_valor_cliente FLOAT NOT NULL,
   
   tv_comissao FLOAT NOT NULL,
+  tv_comissao_cliente FLOAT NOT NULL,
 
   tv_tipo_cliente VARCHAR(10) NOT NULL
     CHECK (tv_tipo_cliente IN ('COMPRADOR','VENDEDOR')),
