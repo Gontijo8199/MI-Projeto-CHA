@@ -71,6 +71,8 @@ CREATE TABLE Trans_Venda_FACT
   tv_ID INT NOT NULL,
 
   tv_valor FLOAT NOT NULL,
+  tv_valor_cliente FLOAT NOT NULL,
+  
   tv_comissao FLOAT NOT NULL,
 
   tv_tipo_cliente VARCHAR(10) NOT NULL

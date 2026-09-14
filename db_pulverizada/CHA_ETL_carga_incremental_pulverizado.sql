@@ -6,7 +6,7 @@
 -- depois fato detalhado e, por último, o fato agregado.
 */
 
-SET search_path = dw_cha;
+SET search_path = dw_cha_pulverizado;
 
 -- 1) Data_DIMENSION — só insere datas novas (chave natural = dt_SK gerado da data)
 INSERT INTO Data_DIMENSION (dt_SK, dt_data_completa, dt_dia_semana, dt_dia_mes, dt_mes, dt_ano, dt_trimestre)
@@ -132,7 +132,7 @@ WHERE NOT EXISTS (
 
 -- 5) Trans_Venda_FACT — insere só transações que ainda não estão na fato 
 INSERT INTO Trans_Venda_FACT (
-    tv_ID, tv_valor, tv_comissao, tv_tipo_cliente,
+    tv_ID, tv_valor, tv_valor_cliente, tv_comissao, tv_tipo_cliente,
     tv_total_compradores, tv_total_vendedores,
     cor_SK, im_SK, cl_SK, dt_SK
 )
@@ -153,21 +153,30 @@ WITH base AS (
         ON it.TransVendaID = tv.TransVendaID
 ),
 participantes AS (
-    SELECT b.*, cc.ClienteCPF AS ClienteCPF, 'COMPRADOR' AS tipo_cliente
+    SELECT 
+        b.TransVendaID, b.TransVendaValor, b.TransComissao, b.TransVendaData, b.FuncCPF, b.ImovelID, 
+        b.total_compradores, b.total_vendedores, cc.ClienteCPF AS ClienteCPF, 'COMPRADOR' AS tipo_cliente
     FROM base b
-    JOIN oper_cha.ClienteCompra cc
-        ON cc.TransVendaID = b.TransVendaID
+    JOIN oper_cha.ClienteCompra cc ON cc.TransVendaID = b.TransVendaID
 
     UNION ALL
 
-    SELECT b.*, cv.ClienteCPF AS ClienteCPF, 'VENDEDOR' AS tipo_cliente
+    SELECT 
+        b.TransVendaID, b.TransVendaValor, b.TransComissao, b.TransVendaData, b.FuncCPF, b.ImovelID, 
+        b.total_compradores, b.total_vendedores, cv.ClienteCPF AS ClienteCPF, 'VENDEDOR' AS tipo_cliente
     FROM base b
-    JOIN oper_cha.ClienteVende cv
-        ON cv.TransVendaID = b.TransVendaID
+    JOIN oper_cha.ClienteVende cv ON cv.TransVendaID = b.TransVendaID
 )
 SELECT
     p.TransVendaID,
     p.TransVendaValor,
+
+    CASE
+        WHEN p.tipo_cliente = 'COMPRADOR' THEN p.TransVendaValor / p.total_compradores
+        WHEN p.tipo_cliente = 'VENDEDOR' THEN p.TransVendaValor / p.total_vendedores
+        ELSE NULL
+    END,
+
     p.TransComissao,
     p.tipo_cliente,
     p.total_compradores,
@@ -189,7 +198,8 @@ JOIN Cliente_DIMENSION cl
 JOIN Data_DIMENSION dt
     ON dt.dt_data_completa = p.TransVendaData
 WHERE NOT EXISTS (
-    SELECT 1 FROM Trans_Venda_FACT fv WHERE fv.tv_ID = tv.TransVendaID
+    SELECT 1 FROM Trans_Venda_FACT fv 
+    WHERE fv.tv_ID = p.TransVendaID
 );
 
 -- 6) Receita_Agregada_FACT

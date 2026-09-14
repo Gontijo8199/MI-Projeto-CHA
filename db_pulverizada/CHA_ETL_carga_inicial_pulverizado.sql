@@ -74,9 +74,9 @@ LEFT JOIN (
 ) anu ON anu.ImovelID = i.ImovelID;
 
 -- 5) Trans_Venda_FACT
--- Grão: 1 linha por transação de venda
+-- Grão: 1 linha por cliente envolvido na transação de venda
 INSERT INTO Trans_Venda_FACT (
-    tv_ID, tv_valor, tv_comissao, tv_tipo_cliente,
+    tv_ID, tv_valor, tv_valor_cliente, tv_comissao, tv_tipo_cliente,
     tv_total_compradores, tv_total_vendedores,
     cor_SK, im_SK, cl_SK, dt_SK
 )
@@ -97,21 +97,30 @@ WITH base AS (
         ON it.TransVendaID = tv.TransVendaID
 ),
 participantes AS (
-    SELECT b.*, cc.ClienteCPF AS ClienteCPF, 'COMPRADOR' AS tipo_cliente
+    SELECT 
+        b.TransVendaID, b.TransVendaValor, b.TransComissao, b.TransVendaData, b.FuncCPF, b.ImovelID, 
+        b.total_compradores, b.total_vendedores, cc.ClienteCPF AS ClienteCPF, 'COMPRADOR' AS tipo_cliente
     FROM base b
-    JOIN oper_cha.ClienteCompra cc
-        ON cc.TransVendaID = b.TransVendaID
+    JOIN oper_cha.ClienteCompra cc ON cc.TransVendaID = b.TransVendaID
 
     UNION ALL
 
-    SELECT b.*, cv.ClienteCPF AS ClienteCPF, 'VENDEDOR' AS tipo_cliente
+    SELECT 
+        b.TransVendaID, b.TransVendaValor, b.TransComissao, b.TransVendaData, b.FuncCPF, b.ImovelID, 
+        b.total_compradores, b.total_vendedores, cv.ClienteCPF AS ClienteCPF, 'VENDEDOR' AS tipo_cliente
     FROM base b
-    JOIN oper_cha.ClienteVende cv
-        ON cv.TransVendaID = b.TransVendaID
+    JOIN oper_cha.ClienteVende cv ON cv.TransVendaID = b.TransVendaID
 )
 SELECT
     p.TransVendaID,
     p.TransVendaValor,
+
+    CASE
+        WHEN p.tipo_cliente = 'COMPRADOR' THEN p.TransVendaValor / p.total_compradores
+        WHEN p.tipo_cliente = 'VENDEDOR' THEN p.TransVendaValor / p.total_vendedores
+        ELSE NULL
+    END,
+
     p.TransComissao,
     p.tipo_cliente,
     p.total_compradores,
