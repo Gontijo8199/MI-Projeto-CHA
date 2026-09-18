@@ -1,5 +1,8 @@
 # Modelagem Informacional - Minimundo Chaves Imóveis
 
+## Link para a apresentação de slides
+https://canva.link/ivzjo6j558c2s07
+
 ## Alunos
 - Nina Leão Fonseca
 - Rudá Dantas Ruoso Brandão
