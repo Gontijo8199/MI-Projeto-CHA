@@ -161,3 +161,123 @@ JOIN oper_cha.ImovelTransacao it ON it.TransVendaID = tv.TransVendaID
 JOIN Imovel_DIMENSION im ON im.im_ID = it.ImovelID AND im.im_is_atual = TRUE
 JOIN Data_DIMENSION dt ON dt.dt_data_completa = tv.TransVendaData
 GROUP BY im.im_SK, dt.dt_SK;
+
+
+
+
+-- Criação do tabelas audit para o overhead de mudanças
+CREATE SCHEMA IF NOT EXISTS audit;
+SET search_path = audit;
+
+-- Tabelas de "chaves alteradas": o trigger só avisa QUAL entidade mudou.
+-- O ETL sempre relê o estado ATUAL em oper_cha filtrando por essas chaves
+-- (nunca aplica um "payload antigo" enfileirado).
+
+CREATE TABLE chg_funcionario (
+    seq       BIGSERIAL PRIMARY KEY,
+    func_cpf  CHAR(11) NOT NULL,
+    acao      CHAR(1) NOT NULL CHECK (acao IN ('I','U')),
+    tstamp    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE chg_corretor (
+    seq       BIGSERIAL PRIMARY KEY,
+    func_cpf  CHAR(11) NOT NULL,
+    acao      CHAR(1) NOT NULL CHECK (acao IN ('I','U')),
+    tstamp    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE chg_cliente (
+    seq          BIGSERIAL PRIMARY KEY,
+    cliente_cpf  CHAR(11) NOT NULL,
+    acao         CHAR(1) NOT NULL CHECK (acao IN ('I','U')),
+    tstamp       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE chg_imovel (
+    seq        BIGSERIAL PRIMARY KEY,
+    imovel_id  INT NOT NULL,
+    acao       CHAR(1) NOT NULL CHECK (acao IN ('I','U')),
+    tstamp     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- TransVenda é fato imutável (sem UPDATE na origem) -> só insert-mirror
+CREATE TABLE ins_transvenda (
+    seq            BIGSERIAL PRIMARY KEY,
+    transvenda_id  INT NOT NULL,
+    tstamp         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criação de triggers
+CREATE OR REPLACE FUNCTION audit.trg_chg_funcionario() RETURNS trigger AS $$
+BEGIN
+    INSERT INTO audit.chg_funcionario(func_cpf, acao)
+    VALUES (NEW.FuncCPF, substring(TG_OP,1,1));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, oper_cha, audit;
+
+CREATE TRIGGER funcionario_chg_trg
+AFTER INSERT OR UPDATE ON oper_cha.Funcionario
+FOR EACH ROW EXECUTE PROCEDURE audit.trg_chg_funcionario();
+
+CREATE OR REPLACE FUNCTION audit.trg_chg_corretor() RETURNS trigger AS $$
+BEGIN
+    INSERT INTO audit.chg_corretor(func_cpf, acao)
+    VALUES (NEW.FuncCPF, substring(TG_OP,1,1));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, oper_cha, audit;
+
+CREATE TRIGGER corretor_chg_trg
+AFTER INSERT OR UPDATE ON oper_cha.Corretor
+FOR EACH ROW EXECUTE PROCEDURE audit.trg_chg_corretor();
+
+CREATE OR REPLACE FUNCTION audit.trg_chg_cliente() RETURNS trigger AS $$
+BEGIN
+    INSERT INTO audit.chg_cliente(cliente_cpf, acao)
+    VALUES (NEW.ClienteCPF, substring(TG_OP,1,1));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, oper_cha, audit;
+
+CREATE TRIGGER cliente_chg_trg
+AFTER INSERT OR UPDATE ON oper_cha.Cliente
+FOR EACH ROW EXECUTE PROCEDURE audit.trg_chg_cliente();
+
+-- Imovel_DIMENSION: mudança direta no Imovel...
+CREATE OR REPLACE FUNCTION audit.trg_chg_imovel() RETURNS trigger AS $$
+BEGIN
+    INSERT INTO audit.chg_imovel(imovel_id, acao)
+    VALUES (NEW.ImovelID, substring(TG_OP,1,1));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, oper_cha, audit;
+
+CREATE TRIGGER imovel_chg_trg
+AFTER INSERT OR UPDATE ON oper_cha.Imovel
+FOR EACH ROW EXECUTE PROCEDURE audit.trg_chg_imovel();
+
+-- ...ou mudança indireta via novo Anuncio (afeta os campos agregados)
+CREATE OR REPLACE FUNCTION audit.trg_chg_imovel_por_anuncio() RETURNS trigger AS $$
+BEGIN
+    INSERT INTO audit.chg_imovel(imovel_id, acao) VALUES (NEW.ImovelID, 'U');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, oper_cha, audit;
+
+CREATE TRIGGER anuncio_chg_imovel_trg
+AFTER INSERT ON oper_cha.Anuncio
+FOR EACH ROW EXECUTE PROCEDURE audit.trg_chg_imovel_por_anuncio();
+
+-- TransVenda é imutável -> só marcamos o insert
+CREATE OR REPLACE FUNCTION audit.trg_ins_transvenda() RETURNS trigger AS $$
+BEGIN
+    INSERT INTO audit.ins_transvenda(transvenda_id) VALUES (NEW.TransVendaID);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, oper_cha, audit;
+
+CREATE TRIGGER transvenda_ins_trg
+AFTER INSERT ON oper_cha.TransVenda
+FOR EACH ROW EXECUTE PROCEDURE audit.trg_ins_transvenda();

@@ -5,6 +5,7 @@
 -- Lógica: dimensões SCD2 primeiro (fecha versão antiga + insere nova),
 -- depois fato detalhado e, por último, o fato agregado.
 */
+BEGIN;
 
 SET search_path = dw_cha_pulverizado;
 
@@ -34,6 +35,11 @@ FROM (
     SELECT co.FuncCPF, co.CorretorRegistro, f.FuncPrimNome, f.FuncUltimoNome
     FROM oper_cha.Corretor co
     JOIN oper_cha.Funcionario f ON f.FuncCPF = co.FuncCPF
+    JOIN (
+        SELECT func_cpf FROM audit.chg_corretor
+        UNION
+        SELECT func_cpf FROM audit.chg_funcionario
+    ) afetados ON afetados.func_cpf = co.FuncCPF
 ) src
 WHERE cd.cor_CPF = src.FuncCPF
   AND cd.cor_is_atual = TRUE
@@ -47,6 +53,11 @@ SELECT
     CURRENT_TIMESTAMP, NULL, TRUE
 FROM oper_cha.Corretor co
 JOIN oper_cha.Funcionario f ON f.FuncCPF = co.FuncCPF
+JOIN (
+    SELECT func_cpf FROM audit.chg_corretor
+    UNION
+    SELECT func_cpf FROM audit.chg_funcionario
+) afetados ON afetados.func_cpf = co.FuncCPF
 WHERE NOT EXISTS (
     SELECT 1 FROM Corretor_DIMENSION cd
     WHERE cd.cor_CPF = co.FuncCPF AND cd.cor_is_atual = TRUE
@@ -57,6 +68,7 @@ UPDATE Cliente_DIMENSION cld
 SET cl_dt_fim = CURRENT_TIMESTAMP,
     cl_is_atual = FALSE
 FROM oper_cha.Cliente c
+JOIN audit.chg_cliente afetados ON afetados.cliente_cpf = c.ClienteCPF
 WHERE cld.cl_CPF = c.ClienteCPF
   AND cld.cl_is_atual = TRUE
   AND (cld.cl_nome      <> c.ClientePrimNome
@@ -67,6 +79,7 @@ SELECT
     c.ClienteCPF, c.ClientePrimNome, c.CliUltimoNome,
     CURRENT_TIMESTAMP, NULL, TRUE
 FROM oper_cha.Cliente c
+JOIN audit.chg_cliente afetados ON afetados.cliente_cpf = c.ClienteCPF
 WHERE NOT EXISTS (
     SELECT 1 FROM Cliente_DIMENSION cld
     WHERE cld.cl_CPF = c.ClienteCPF AND cld.cl_is_atual = TRUE
@@ -89,6 +102,8 @@ FROM (
     JOIN oper_cha.Endereco e ON e.EndID = i.EndID
     JOIN oper_cha.CEP cep    ON cep.CEP = e.CEP
     JOIN oper_cha.UF uf      ON uf.UF = cep.UF
+    JOIN (SELECT DISTINCT imovel_id FROM audit.chg_imovel) afetados
+        ON afetados.imovel_id = i.ImovelID
     LEFT JOIN (
         SELECT ImovelID, COUNT(*) AS num_anuncios, SUM(AnuncioPreco) AS gasto_total
         FROM oper_cha.Anuncio
@@ -97,12 +112,12 @@ FROM (
 ) src
 WHERE idim.im_ID = src.ImovelID
   AND idim.im_is_atual = TRUE
-  AND (idim.im_logradouro       <> src.NmLogradouro
-    OR idim.im_bairro           <> src.EndBairro
-    OR idim.im_cidade           <> src.CEPMunicipio
-    OR idim.im_estado           <> src.UFEstadoNome
-    OR idim.im_num_anuncios     <> src.num_anuncios
-    OR idim.im_gasto_em_anuncios <> src.gasto_total);
+  AND (idim.im_logradouro           <> src.NmLogradouro
+    OR idim.im_bairro               <> src.EndBairro
+    OR idim.im_cidade               <> src.CEPMunicipio
+    OR idim.im_estado               <> src.UFEstadoNome
+    OR idim.im_num_anuncios         <> src.num_anuncios
+    OR idim.im_gasto_em_anuncios    <> src.gasto_total);
 
 INSERT INTO Imovel_DIMENSION (im_ID, im_logradouro, im_bairro, im_cidade, im_estado,
                                im_num_anuncios, im_gasto_em_anuncios,
@@ -120,6 +135,8 @@ FROM oper_cha.Imovel i
 JOIN oper_cha.Endereco e ON e.EndID = i.EndID
 JOIN oper_cha.CEP cep    ON cep.CEP = e.CEP
 JOIN oper_cha.UF uf      ON uf.UF = cep.UF
+JOIN (SELECT DISTINCT imovel_id FROM audit.chg_imovel) afetados
+    ON afetados.imovel_id = i.ImovelID
 LEFT JOIN (
     SELECT ImovelID, COUNT(*) AS num_anuncios, SUM(AnuncioPreco) AS gasto_total
     FROM oper_cha.Anuncio
@@ -146,12 +163,14 @@ WITH base AS (
         tv.FuncCPF,
         it.ImovelID,
         (SELECT COUNT(*) FROM oper_cha.ClienteCompra cc
-          WHERE cc.TransVendaID = tv.TransVendaID) AS total_compradores,
+            WHERE cc.TransVendaID = tv.TransVendaID) AS total_compradores,
         (SELECT COUNT(*) FROM oper_cha.ClienteVende cv
-          WHERE cv.TransVendaID = tv.TransVendaID) AS total_vendedores
+            WHERE cv.TransVendaID = tv.TransVendaID) AS total_vendedores
     FROM oper_cha.TransVenda tv
     JOIN oper_cha.ImovelTransacao it
         ON it.TransVendaID = tv.TransVendaID
+    JOIN (SELECT DISTINCT transvenda_id FROM audit.ins_transvenda) novo
+        ON novo.transvenda_id = tv.TransVendaID
 ),
 participantes AS (
     SELECT 
@@ -173,14 +192,14 @@ SELECT
     p.TransVendaValor,
 
     CASE
-        WHEN p.tipo_cliente = 'COMPRADOR' THEN p.TransVendaValor / p.total_compradores
-        WHEN p.tipo_cliente = 'VENDEDOR' THEN p.TransVendaValor / p.total_vendedores
+        WHEN p.tipo_cliente = 'COMPRADOR'   THEN p.TransVendaValor / p.total_compradores
+        WHEN p.tipo_cliente = 'VENDEDOR'    THEN p.TransVendaValor / p.total_vendedores
         ELSE NULL
     END,
 
     CASE
-        WHEN p.tipo_cliente = 'COMPRADOR' THEN p.TransComissao / p.total_compradores
-        WHEN p.tipo_cliente = 'VENDEDOR' THEN p.TransComissao / p.total_vendedores
+        WHEN p.tipo_cliente = 'COMPRADOR'   THEN p.TransComissao / p.total_compradores
+        WHEN p.tipo_cliente = 'VENDEDOR'    THEN p.TransComissao / p.total_vendedores
         ELSE NULL
     END,
 
@@ -195,43 +214,55 @@ SELECT
 FROM participantes p
 JOIN Corretor_DIMENSION cor
     ON cor.cor_CPF = p.FuncCPF
-   AND cor.cor_is_atual = TRUE
+    AND cor.cor_is_atual = TRUE
 JOIN Imovel_DIMENSION im
     ON im.im_ID = p.ImovelID
-   AND im.im_is_atual = TRUE
+    AND im.im_is_atual = TRUE
 JOIN Cliente_DIMENSION cl
     ON cl.cl_CPF = p.ClienteCPF
-   AND cl.cl_is_atual = TRUE
+    AND cl.cl_is_atual = TRUE
 JOIN Data_DIMENSION dt
     ON dt.dt_data_completa = p.TransVendaData
 WHERE NOT EXISTS (
     SELECT 1 FROM Trans_Venda_FACT fv
     WHERE fv.tv_ID = p.TransVendaID
-      AND fv.cl_SK = cl.cl_SK
-      AND fv.tv_tipo_cliente = p.tipo_cliente
+        AND fv.cl_SK = cl.cl_SK
+        AND fv.tv_tipo_cliente = p.tipo_cliente
 );
 
 -- 6) Receita_Agregada_FACT
 -- Grão: 1 linha por (imóvel, dia) 
+-- pares (im_SK, dt_SK) tocados por alguma transação nova nesta rodada
+WITH afetados AS (
+    SELECT DISTINCT im.im_SK, dt.dt_SK
+    FROM audit.ins_transvenda it2
+    JOIN oper_cha.ImovelTransacao itx   ON itx.TransVendaID = it2.transvenda_id
+    JOIN oper_cha.TransVenda tv         ON tv.TransVendaID = it2.transvenda_id
+    JOIN Imovel_DIMENSION im            ON im.im_ID = itx.ImovelID AND im.im_is_atual = TRUE
+    JOIN Data_DIMENSION dt              ON dt.dt_data_completa = tv.TransVendaData
+),
+-- remove o total antigo desses pares (upsert: apaga e reinsere) consumindo with anterior
+deletados AS (
+    DELETE FROM Receita_Agregada_FACT ra
+    USING afetados a
+    WHERE ra.im_SK = a.im_SK AND ra.dt_SK = a.dt_SK
+    RETURNING ra.im_SK
+)
+
 INSERT INTO Receita_Agregada_FACT (ra_comissao_total, im_SK, dt_SK)
-SELECT
-    src.comissao_total,
-    src.im_SK,
-    src.dt_SK
-FROM (
-    SELECT 
-        SUM(tv.TransComissao) AS comissao_total,
-        im.im_SK,
-        dt.dt_SK
-    FROM oper_cha.TransVenda tv
-        JOIN oper_cha.ImovelTransacao it ON it.TransVendaID = tv.TransVendaID
-        JOIN Imovel_DIMENSION im ON im.im_ID = it.ImovelID AND im.im_is_atual = TRUE
-        JOIN Data_DIMENSION dt ON dt.dt_data_completa = tv.TransVendaData
-    GROUP BY im.im_SK, dt.dt_SK
-) AS src
-WHERE NOT EXISTS (
-    SELECT 1 FROM Receita_Agregada_FACT ra
-    WHERE src.comissao_total = ra.ra_comissao_total
-      AND src.im_SK = ra.im_SK
-      AND src.dt_SK = ra.dt_SK
-);
+SELECT SUM(tv.TransComissao), im.im_SK, dt.dt_SK
+FROM oper_cha.TransVenda tv
+JOIN oper_cha.ImovelTransacao it    ON it.TransVendaID = tv.TransVendaID
+JOIN Imovel_DIMENSION im            ON im.im_ID = it.ImovelID AND im.im_is_atual = TRUE
+JOIN Data_DIMENSION dt              ON dt.dt_data_completa = tv.TransVendaData
+WHERE (im.im_SK, dt.dt_SK)          IN (SELECT im_SK, dt_SK FROM afetados)
+GROUP BY im.im_SK, dt.dt_SK;
+
+-- Limpeza de buffers de CDC
+TRUNCATE TABLE audit.chg_funcionario;
+TRUNCATE TABLE audit.chg_corretor;
+TRUNCATE TABLE audit.chg_cliente;
+TRUNCATE TABLE audit.chg_imovel;
+TRUNCATE TABLE audit.ins_transvenda;
+
+COMMIT;
