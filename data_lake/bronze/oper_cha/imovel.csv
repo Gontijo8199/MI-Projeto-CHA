@@ -1,0 +1,31 @@
+imovelid,imoveltipo,imovelqtdquartos,imovelqtdbanheiros,imovelqtdgaragem,imovelm2,imovelvalor,imovelvazio,endid
+1,Sítio,3,2,0,505,887821.08,f,1
+2,Apartamento,3,4,4,103,942104.83,t,3
+3,Apartamento,3,1,0,118,1323758.44,f,4
+4,Sítio,4,3,1,414,648957.32,f,5
+5,Apartamento,1,2,4,54,395691.29,f,10
+6,Apartamento,1,2,2,62,482343.45,t,11
+7,Apartamento,3,3,0,144,1385339.68,f,12
+8,Casa,4,3,3,181,529641.82,t,13
+9,Sala Comercial,0,2,4,473,1365126.21,f,14
+10,Sítio,2,2,4,540,300000.42,t,17
+11,Apartamento,1,2,3,43,687892.85,f,19
+12,Sala Comercial,0,2,4,46,1077974.1,t,20
+13,Sala Comercial,0,2,2,149,567420.17,t,21
+14,Terreno,0,1,2,547,1185790.1,t,22
+15,Apartamento,3,4,1,102,1186514.26,t,23
+16,Sala Comercial,0,2,3,54,327665.4,f,24
+17,Sítio,2,2,1,115,293062.56,f,25
+18,Apartamento,4,5,1,168,1429840.26,t,26
+19,Apartamento,3,4,1,112,1176950.06,t,27
+20,Apartamento,1,2,3,53,775961.71,t,29
+21,Apartamento,3,1,0,138,956740.95,t,30
+22,Apartamento,4,1,0,135,1314718.73,t,31
+23,Sala Comercial,0,1,2,532,462792.59,t,32
+24,Sala Comercial,0,2,1,519,1245896.04,t,33
+25,Apartamento,1,1,2,47,722655,t,34
+26,Apartamento,1,1,2,47,508226.36,t,35
+27,Sala Comercial,0,2,1,467,422204.21,f,36
+28,Casa,1,1,4,135,246776.59,t,37
+29,Apartamento,1,2,3,56,815393.11,f,38
+30,Apartamento,1,1,0,43,530068.04,f,40

@@ -1,0 +1,71 @@
+endid,endnumero,endcomplemento,endbairro,cep,regiaoid
+1,100,Apto 100,Copacabana,22000-000,1
+2,110,,Catete,20000-000,2
+3,120,,Ipanema,22400-000,3
+4,130,Apto 103,Botafogo,22280-000,4
+5,140,,Centro Histórico,25600-000,5
+6,150,,Centro,24000-000,6
+7,160,Apto 106,Centro,01000-000,7
+8,170,,Ibirapuera,04500-000,8
+9,180,,Pinheiros,05400-000,9
+10,190,Apto 109,Centro,13000-000,10
+11,200,,Gonzaga,11000-000,11
+12,210,,Centro,30000-000,12
+13,220,Apto 112,Centro Histórico,35400-000,13
+14,230,,Centro,29000-000,14
+15,240,,Centro,80000-000,15
+16,250,Apto 115,Leme,22000-000,16
+17,260,,Vila Madalena,01000-000,17
+18,270,,Eldorado,30000-000,18
+19,280,Apto 118,Jardim da Penha,29000-000,19
+20,290,,Centro,80000-000,20
+21,300,,Copacabana,22000-000,1
+22,310,Apto 121,Catete,20000-000,2
+23,320,,Ipanema,22400-000,3
+24,330,,Botafogo,22280-000,4
+25,340,Apto 124,Centro Histórico,25600-000,5
+26,350,,Centro,24000-000,6
+27,360,,Centro,01000-000,7
+28,370,Apto 127,Ibirapuera,04500-000,8
+29,380,,Pinheiros,05400-000,9
+30,390,,Centro,13000-000,10
+31,400,Apto 130,Gonzaga,11000-000,11
+32,410,,Centro,30000-000,12
+33,420,,Centro Histórico,35400-000,13
+34,430,Apto 133,Centro,29000-000,14
+35,440,,Centro,80000-000,15
+36,450,,Leme,22000-000,16
+37,460,Apto 136,Vila Madalena,01000-000,17
+38,470,,Eldorado,30000-000,18
+39,480,,Jardim da Penha,29000-000,19
+40,490,Apto 139,Centro,80000-000,20
+41,10,Casa 1,Botafogo,22280-000,4
+42,17,,Centro Histórico,25600-000,5
+43,24,,Centro,24000-000,6
+44,31,,Centro,01000-000,7
+45,38,Casa 5,Ibirapuera,04500-000,8
+46,45,,Pinheiros,05400-000,9
+47,52,,Centro,13000-000,10
+48,59,,Gonzaga,11000-000,11
+49,66,Casa 9,Centro,30000-000,12
+50,73,,Centro Histórico,35400-000,13
+51,80,,Centro,29000-000,14
+52,87,,Centro,80000-000,15
+53,94,Casa 13,Leme,22000-000,16
+54,101,,Vila Madalena,01000-000,17
+55,108,,Eldorado,30000-000,18
+56,115,,Jardim da Penha,29000-000,19
+57,122,Casa 17,Centro,80000-000,20
+58,129,,Copacabana,22000-000,1
+59,136,,Catete,20000-000,2
+60,143,,Ipanema,22400-000,3
+61,150,Casa 21,Botafogo,22280-000,4
+62,157,,Centro Histórico,25600-000,5
+63,164,,Centro,24000-000,6
+64,171,,Centro,01000-000,7
+65,178,Casa 25,Ibirapuera,04500-000,8
+66,185,,Pinheiros,05400-000,9
+67,192,,Centro,13000-000,10
+68,199,,Gonzaga,11000-000,11
+69,206,Casa 29,Centro,30000-000,12
+70,213,,Centro Histórico,35400-000,13

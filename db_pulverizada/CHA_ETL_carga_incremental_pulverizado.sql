@@ -133,7 +133,7 @@ WHERE NOT EXISTS (
 -- 5) Trans_Venda_FACT — insere só transações que ainda não estão na fato 
 INSERT INTO Trans_Venda_FACT (
     tv_ID, tv_valor, tv_valor_cliente, 
-    tv_comissao, tv_comissao_cliente, tv_tipo_cliente,
+    tv_comissao_cliente, tv_comissao, tv_tipo_cliente,   -- ordem = ordem do SELECT (fatia do cliente vem antes do total)
     tv_total_compradores, tv_total_vendedores,
     cor_SK, im_SK, cl_SK, dt_SK
 )

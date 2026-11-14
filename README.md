@@ -7,7 +7,7 @@
 
 ## Sobre o projeto
 
-Este repositório contém a Fase 1 do trabalho de Modelagem Informacional para o minimundo **Chaves Imóveis**. A entrega cobre:
+Este repositório contém as Fases 1 e 2 do trabalho (a Fase 2 está [no fim deste arquivo](#fase-2---data-lake-com-benchmark-fipezap)) de Modelagem Informacional para o minimundo **Chaves Imóveis**. A entrega cobre:
 
 1. **MIR** - Modelagem Informacional de Requisitos (Objetivos Informacionais,
    Interfaces e Dicionário de Itens Elementares) - `Objetivos_Informacionais.pdf`
@@ -58,15 +58,12 @@ MI-Projeto-CHA-main/
 │   ├── CHA_FACT.erdplus               # esquema estrela do DW - modelo pontes
 │   └── CHA_FACT_pulverizado.erdplus   # esquema estrela do DW - modelo pulverizado
 │
-└── data/                              # export em CSV do conteúdo atual do DW (modelo pontes)
-    ├── corretor_dimension.csv
-    ├── cliente_dimension.csv
-    ├── imovel_dimension.csv
-    ├── data_dimension.csv
-    ├── trans_venda_fact.csv
-    ├── vendedor_ponte.csv
-    ├── comprador_ponte.csv
-    └── receita_agregada_fact.csv
+├── db_fase2/  etl_python/  run_pipeline.sh  requirements.txt   # Fase 2 (ver abaixo)
+│
+└── data_lake/gold/                    # export em CSV do conteúdo atual do DW (modelo pulverizado) + views da Fase 2
+    ├── corretor_dimension.csv, cliente_dimension.csv, imovel_dimension.csv, data_dimension.csv
+    ├── trans_venda_fact.csv, receita_agregada_fact.csv
+    └── vw_venda_vs_mercado.csv, mercado_fipezap_dimension.csv
 ```
 
 ---
@@ -92,8 +89,7 @@ createdb cha_db
 psql -d cha_db
 ```
 
-(troque `cha_db` pelo nome que preferirem - só usem o mesmo nome em todos os
-passos seguintes)
+(troque `cha_db` pelo nome que preferirem - só usem o mesmo nome em todos os passos seguintes)
 
 ### 2. Construir o banco operacional
 
@@ -116,14 +112,14 @@ SELECT COUNT(*) FROM TransVenda;
 Escolham **um** dos dois modelos (ou rodem os dois, já que ficam em schemas
 separados e não conflitam entre si).
 
-**Modelo Pontes** (recomendado - é o que está exportado em `data/`):
+**Modelo Pontes** (alternativa, usado só na Fase 1):
 
 ```sql
 \i db_pontes/CHA_DDL_create_dw_db.sql
 \i db_pontes/CHA_ETL_carga_inicial.sql
 ```
 
-**Modelo Pulverizado** (alternativa, sem tabelas ponte):
+**Modelo Pulverizado** (recomendado - é o que a Fase 2 estende e o que está exportado em `data_lake/gold/`):
 
 ```sql
 \i db_pulverizada/CHA_DDL_create_dw_db_pulverizado.sql
@@ -148,30 +144,30 @@ executado várias vezes sem duplicar dados:
 ### 5. Validar o DW
 
 ```sql
-SET search_path = dw_cha;  -- ou dw_cha_pulverizado
-
-SELECT SUM(tv_comissao) FROM Trans_Venda_FACT;  -- deve bater com SUM(TransComissao) do operacional
+-- modelo pulverizado: cada lado (comprador/vendedor) soma a comissão inteira
+SELECT SUM(tv_comissao_cliente) FROM dw_cha_pulverizado.Trans_Venda_FACT WHERE tv_tipo_cliente = 'VENDEDOR';
+-- modelo pontes
+SELECT SUM(tv_comissao) FROM dw_cha.Trans_Venda_FACT;
+-- os dois devem bater com SUM(TransComissao) do operacional
 ```
 
-### 6. Exportar os dados do DW para CSV (opcional - já incluído em `data/`)
+### 6. Exportar os dados do DW para CSV (opcional - já incluído em `data_lake/gold/`)
 
 ```sql
-SET search_path = dw_cha;
+SET search_path = dw_cha_pulverizado;
 
-\copy corretor_dimension TO 'data/corretor_dimension.csv' WITH CSV HEADER
-\copy cliente_dimension TO 'data/cliente_dimension.csv' WITH CSV HEADER
-\copy imovel_dimension TO 'data/imovel_dimension.csv' WITH CSV HEADER
-\copy data_dimension TO 'data/data_dimension.csv' WITH CSV HEADER
-\copy trans_venda_fact TO 'data/trans_venda_fact.csv' WITH CSV HEADER
-\copy vendedor_ponte TO 'data/vendedor_ponte.csv' WITH CSV HEADER
-\copy comprador_ponte TO 'data/comprador_ponte.csv' WITH CSV HEADER
-\copy receita_agregada_fact TO 'data/receita_agregada_fact.csv' WITH CSV HEADER
+\copy corretor_dimension TO 'data_lake/gold/corretor_dimension.csv' WITH CSV HEADER
+\copy cliente_dimension TO 'data_lake/gold/cliente_dimension.csv' WITH CSV HEADER
+\copy imovel_dimension TO 'data_lake/gold/imovel_dimension.csv' WITH CSV HEADER
+\copy data_dimension TO 'data_lake/gold/data_dimension.csv' WITH CSV HEADER
+\copy trans_venda_fact TO 'data_lake/gold/trans_venda_fact.csv' WITH CSV HEADER
+\copy receita_agregada_fact TO 'data_lake/gold/receita_agregada_fact.csv' WITH CSV HEADER
 ```
 
 ### 7. Abrir o Dashboard
 
 Abram `Dashboard.xlsx` no Excel. Ele consome os dados via tabelas dinâmicas
-(Pivot Tables). Se os CSVs em `data/` tiverem sido regenerados no passo
+(Pivot Tables). Se os CSVs em `data_lake/gold/` tiverem sido regenerados no passo
 anterior, atualizem as tabelas dinâmicas em **Dados → Atualizar Tudo** (ou
 clique com o botão direito sobre a tabela dinâmica → **Atualizar**) para
 refletir os dados mais recentes.
@@ -193,3 +189,59 @@ edição:
 
 - `Objetivos_Informacionais.pdf` - MIR completo: Objetivos Informacionais por ator, Interfaces Informacionais de Requisitos e Dicionário de Itens Elementares, além dos Objetivos Organizacionais com seus fluxogramas
 - `CHA.pptx` - slides de apresentação do trabalho
+---
+
+## Fase 2 - Data Lake com benchmark FipeZAP
+
+
+**Fonte externa:** [Índice FipeZAP](https://www.fipe.org.br/pt-br/indices/fipezap/) (Fipe, público) - série histórica mensal do preço médio anunciado de venda (R$/m²) de apartamentos prontos, por cidade (56) e por número de dormitórios.
+
+**Conexão com o minimundo:** cada venda do DW recebe o R$/m² de mercado da mesma cidade, mesmo mês e mesma faixa de dormitórios. A medida derivada `agio_vs_mercado = tv_valor_m2 / mk_preco_m2 - 1` mostra quanto cada corretor/cidade vende acima (+) ou abaixo (−) do mercado.
+
+**Pergunta de negócio:** vendemos acima ou abaixo do R$/m² anunciado no mercado da cidade, no mês da venda?
+### Camadas do Data Lake
+
+| Camada | Onde | Conteúdo |
+|---|---|---|
+| **Bronze** (bruto) | `data_lake/bronze/fipezap/` | planilha original da Fipe, inalterada |
+| | `data_lake/bronze/oper_cha/` | snapshot CSV das tabelas do OLTP (linhagem da fonte interna) |
+| **Silver** (limpo / conformado) | `data_lake/silver/fipezap_preco_m2.csv` | formato longo (cidade, cidade normalizada, mês, dormitórios, R$/m², variações) |
+| | `dw_cha_pulverizado.stg_fipezap` + estrela `dw_cha_pulverizado` | staging e modelo dimensional (Fase 1 + `Mercado_FIPEZAP_DIMENSION`) |
+| **Gold** (consumo) | `data_lake/gold/` | CSVs do DW + `vw_venda_vs_mercado` + mercado das cidades em que atuamos → `Dashboard.xlsx` |
+
+```
+ Fipe xlsx ─► bronze/fipezap ─(etl_python)─► silver/fipezap_preco_m2.csv ─\copy─► dw_cha_pulverizado.stg_fipezap ─┐
+ OLTP oper_cha ─► bronze/oper_cha (snapshot)                                                        │
+      └──────(ETL Fase 1)──► dw_cha_pulverizado (estrela) ◄──(ETL Fase 2)─────────────────────────────┘
+                                   └─► vw_venda_vs_mercado ─\copy─► gold/*.csv ─Power Query─► Dashboard.xlsx
+```
+
+Mudanças no DW (`db_fase2/`, no modelo Pulverizado):
+- nova `Mercado_FIPEZAP_DIMENSION` (grão: cidade × mês × dormitórios; Tipo 1, porque a Fipe revisa a série);
+- `Imovel_DIMENSION` + `im_tipo`, `im_qtd_quartos`, `im_m2` (SCD Tipo 2 no incremental);
+- `Trans_Venda_FACT` + `tv_valor_m2` e FK `mk_SK` (repetidos em todas as linhas de cliente da mesma venda);
+- view `vw_venda_vs_mercado`: uma linha por **venda** (`DISTINCT ON tv_ID`), para o ágio médio não pesar a venda pelo número de clientes; traz corretor e total de compradores/vendedores.
+
+### Execução
+
+```bash
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+createdb cha_db
+PYTHON=.venv/bin/python ./run_pipeline.sh cha_db    # Fase 1 + Fase 2 do zero, gera bronze/silver/gold
+```
+
+Para cargas seguintes, coloque a nova planilha da Fipe em `data_lake/bronze/fipezap/`, recarregue `stg_fipezap` a partir da silver e rode `db_pulverizada/CHA_ETL_carga_incremental_pulverizado.sql` seguido de `db_fase2/CHA_F2_ETL_carga_incremental.sql` (os dois são idempotentes).
+
+### Regras de junção
+- cidade: `fn_norm_cidade()` (sem acento, maiúsculo) nos dois lados;
+- mês: mês da `TransVendaData` = `mk_mes` (dia 1);
+- dormitórios: 1D..4D (4D = 4+), com fallback para `Total` se a cidade não tiver quebra (ex.: Vitória);
+- só `ImovelTipo = 'Apartamento'` (o FipeZAP mede apartamentos prontos); os demais tipos ficam com `mk_SK` NULL.
+
+### Massa de dados
+O DML da Fase 1 foi ajustado para a comparação fazer sentido: o m² dos apartamentos foi recalculado a partir do FipeZAP (ágio-alvo entre −15% e +20%) e 6 imóveis em cidades cobertas viraram apartamentos. Os **valores** das vendas não mudaram, então faturamento e comissão da Fase 1 continuam iguais. Resultado: 16 de 29 vendas com benchmark.
+
+### Limitações
+- O FipeZAP é preço **anunciado**, não de transação.
+- Petrópolis e Ouro Preto não existem no índice; casas, sítios, salas e terrenos ficam sem benchmark.
+- O modelo Pontes (`db_pontes/`) fica só como histórico da Fase 1 e não foi estendido na Fase 2.
