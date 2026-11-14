@@ -1,5 +1,8 @@
 # Modelagem Informacional - Minimundo Chaves Imóveis
 
+## Link para a apresentação de slides
+https://canva.link/ivzjo6j558c2s07
+
 ## Alunos
 - Nina Leão Fonseca
 - Rudá Dantas Ruoso Brandão
@@ -18,7 +21,7 @@ Este repositório contém as Fases 1 e 2 do trabalho (a Fase 2 está [no fim des
 4. **ETL** - scripts de carga inicial e incremental, do banco operacional para
    o DW - dentro de cada pasta de DW
 5. **Dashboard** - visualização analítica em cima dos dados do DW -
-   `Dashboard.xlsx`
+   `dashboard.xlsx`
 
 Os dois modelos de DW representam a mesma informação, mas resolvem de forma diferente o relacionamento N:N entre transação de venda e clientes (compradores/vendedores):
 
@@ -34,9 +37,10 @@ Os dois modelos de DW representam a mesma informação, mas resolvem de forma di
 ```
 MI-Projeto-CHA-main/
 ├── README.md                          # este arquivo
-├── CHA.pptx                           # apresentação/slides do trabalho
+├── Chaves_Imoveis.pdf                 # slides da apresentação (PDF; versão online no link acima)
+├── MIR-CHA.pdf                        # MIR (versão dos slides)
 ├── Objetivos_Informacionais.pdf       # MIR completo (Objetivos, Interfaces, Dicionário)
-├── Dashboard.xlsx                     # dashboard (tabelas dinâmicas) consumindo os dados do DW
+├── dashboard.xlsx                     # dashboard (tabelas dinâmicas) consumindo os dados do DW
 │
 ├── db_operacional/                    # banco OLTP (schema oper_cha)
 │   ├── CHA_DDL_create_oper_db.sql     # cria o schema e as tabelas operacionais
@@ -71,7 +75,7 @@ MI-Projeto-CHA-main/
 ## Pré-requisitos
 
 - **PostgreSQL** (14+) instalado localmente, com acesso via `psql`
-- **Microsoft Excel** (para abrir `Dashboard.xlsx`)
+- **Microsoft Excel** (para abrir `dashboard.xlsx`)
 - Opcional: conta em [erdplus.com](https://erdplus.com) para visualizar/editar
   os arquivos `.erdplus`
 
@@ -166,7 +170,7 @@ SET search_path = dw_cha_pulverizado;
 
 ### 7. Abrir o Dashboard
 
-Abram `Dashboard.xlsx` no Excel. Ele consome os dados via tabelas dinâmicas
+Abram `dashboard.xlsx` no Excel. Ele consome os dados via tabelas dinâmicas
 (Pivot Tables). Se os CSVs em `data_lake/gold/` tiverem sido regenerados no passo
 anterior, atualizem as tabelas dinâmicas em **Dados → Atualizar Tudo** (ou
 clique com o botão direito sobre a tabela dinâmica → **Atualizar**) para
@@ -188,7 +192,8 @@ edição:
 ## Documentação adicional
 
 - `Objetivos_Informacionais.pdf` - MIR completo: Objetivos Informacionais por ator, Interfaces Informacionais de Requisitos e Dicionário de Itens Elementares, além dos Objetivos Organizacionais com seus fluxogramas
-- `CHA.pptx` - slides de apresentação do trabalho
+- `Chaves_Imoveis.pdf` - slides de apresentação do trabalho (versão online no link do topo)
+- `MIR-CHA.pdf` - MIR em formato de apresentação
 ---
 
 ## Fase 2 - Data Lake com benchmark FipeZAP
@@ -207,13 +212,13 @@ edição:
 | | `data_lake/bronze/oper_cha/` | snapshot CSV das tabelas do OLTP (linhagem da fonte interna) |
 | **Silver** (limpo / conformado) | `data_lake/silver/fipezap_preco_m2.csv` | formato longo (cidade, cidade normalizada, mês, dormitórios, R$/m², variações) |
 | | `dw_cha_pulverizado.stg_fipezap` + estrela `dw_cha_pulverizado` | staging e modelo dimensional (Fase 1 + `Mercado_FIPEZAP_DIMENSION`) |
-| **Gold** (consumo) | `data_lake/gold/` | CSVs do DW + `vw_venda_vs_mercado` + mercado das cidades em que atuamos → `Dashboard.xlsx` |
+| **Gold** (consumo) | `data_lake/gold/` | CSVs do DW + `vw_venda_vs_mercado` + mercado das cidades em que atuamos → `dashboard.xlsx` |
 
 ```
  Fipe xlsx ─► bronze/fipezap ─(etl_python)─► silver/fipezap_preco_m2.csv ─\copy─► dw_cha_pulverizado.stg_fipezap ─┐
  OLTP oper_cha ─► bronze/oper_cha (snapshot)                                                        │
       └──────(ETL Fase 1)──► dw_cha_pulverizado (estrela) ◄──(ETL Fase 2)─────────────────────────────┘
-                                   └─► vw_venda_vs_mercado ─\copy─► gold/*.csv ─Power Query─► Dashboard.xlsx
+                                   └─► vw_venda_vs_mercado ─\copy─► gold/*.csv ─Power Query─► dashboard.xlsx
 ```
 
 Mudanças no DW (`db_fase2/`, no modelo Pulverizado):

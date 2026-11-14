@@ -176,15 +176,25 @@ WHERE NOT EXISTS (
 
 -- 8) Receita_Agregada_FACT
 -- Grão: 1 linha por (imóvel, dia) 
-TRUNCATE TABLE Receita_Agregada_FACT;
-
 INSERT INTO Receita_Agregada_FACT (ra_comissao_total, im_SK, dt_SK)
 SELECT
-    SUM(tv.TransComissao) AS ra_comissao_total,
-    im.im_SK,
-    dt.dt_SK
-FROM oper_cha.TransVenda tv
-JOIN oper_cha.ImovelTransacao it ON it.TransVendaID = tv.TransVendaID
-JOIN Imovel_DIMENSION im ON im.im_ID = it.ImovelID AND im.im_is_atual = TRUE
-JOIN Data_DIMENSION dt ON dt.dt_data_completa = tv.TransVendaData
-GROUP BY im.im_SK, dt.dt_SK;
+    src.comissao_total,
+    src.im_SK,
+    src.dt_SK
+FROM (
+    SELECT 
+        SUM(tv.TransComissao) AS comissao_total,
+        im.im_SK,
+        dt.dt_SK
+    FROM oper_cha.TransVenda tv
+        JOIN oper_cha.ImovelTransacao it ON it.TransVendaID = tv.TransVendaID
+        JOIN Imovel_DIMENSION im ON im.im_ID = it.ImovelID AND im.im_is_atual = TRUE
+        JOIN Data_DIMENSION dt ON dt.dt_data_completa = tv.TransVendaData
+    GROUP BY ra.dt_SK, dt.dt_SK
+) AS src
+WHERE NOT EXISTS (
+    SELECT 1 FROM Receita_Agregada_FACT ra
+    WHERE src.comissao_total = ra.ra_comissao_total
+      AND src.im_SK = ra.im_SK
+      AND src.dt_SK = ra.dt_SK
+);
