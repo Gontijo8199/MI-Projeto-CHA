@@ -243,6 +243,28 @@ Para cargas seguintes, coloque a nova planilha da Fipe em `data_lake/bronze/fipe
 - dormitórios: 1D..4D (4D = 4+), com fallback para `Total` se a cidade não tiver quebra (ex.: Vitória);
 - só `ImovelTipo = 'Apartamento'` (o FipeZAP mede apartamentos prontos); os demais tipos ficam com `mk_SK` NULL.
 
+### Modelo de dados do dashboard
+
+A view `vw_venda_vs_mercado` expõe as chaves (`cor_sk`, `im_sk`, `dt_sk`, `mk_sk`) para que o Power Pivot relacione uma linha por venda com as dimensões:
+
+| Origem (view) | Destino |
+|---|---|
+| `vw_venda_vs_mercado[cor_sk]` | `corretor_dimension[cor_sk]` |
+| `vw_venda_vs_mercado[im_sk]` | `imovel_dimension[im_sk]` |
+| `vw_venda_vs_mercado[dt_sk]` | `data_dimension[dt_sk]` |
+| `vw_venda_vs_mercado[mk_sk]` | `mercado_fipezap_dimension[mk_sk]` |
+
+Medidas DAX sugeridas:
+
+```dax
+Ágio médio = AVERAGE(vw_venda_vs_mercado[agio_vs_mercado])
+R$/m² nosso = AVERAGE(vw_venda_vs_mercado[tv_valor_m2])
+R$/m² mercado = AVERAGE(vw_venda_vs_mercado[mk_preco_m2])
+Vendas com benchmark = COUNT(vw_venda_vs_mercado[agio_vs_mercado])
+```
+
+Observação: não relacionar o FipeZAP por data; usar `mk_sk`; o eixo de mês dos gráficos de benchmark é `mercado_fipezap_dimension[mk_mes]`; não misturar medidas da view com `SUM` da `trans_venda_fact` (1 linha por cliente).
+
 ### Massa de dados
 O DML da Fase 1 foi ajustado para a comparação fazer sentido: o m² dos apartamentos foi recalculado a partir do FipeZAP (ágio-alvo entre −15% e +20%) e 6 imóveis em cidades cobertas viraram apartamentos. Os **valores** das vendas não mudaram, então faturamento e comissão da Fase 1 continuam iguais. Resultado: 16 de 29 vendas com benchmark.
 

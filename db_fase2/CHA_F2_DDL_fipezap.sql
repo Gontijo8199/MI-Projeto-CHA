@@ -62,6 +62,7 @@ DROP VIEW IF EXISTS vw_venda_vs_mercado;
 CREATE VIEW vw_venda_vs_mercado AS
 SELECT DISTINCT ON (f.tv_ID)
   f.tv_ID,
+  f.cor_SK, f.im_SK, f.dt_SK, f.mk_SK,
   f.tv_total_compradores, f.tv_total_vendedores,
   dt.dt_data_completa,
   cor.cor_nome || ' ' || cor.cor_sobrenome AS corretor,

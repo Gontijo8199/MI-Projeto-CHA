@@ -1,31 +1,31 @@
 im_sk,im_id,im_logradouro,im_bairro,im_cidade,im_estado,im_num_anuncios,im_gasto_em_anuncios,im_dt_inicio,im_dt_fim,im_is_atual,im_tipo,im_qtd_quartos,im_m2
-1,1,Nossa Senhora de Copacabana,Copacabana,Rio de Janeiro,Rio de Janeiro,2,1775642.16,2026-11-14 18:01:25.150111,,t,Sítio,3,505
-2,2,Visconde de Pirajá,Ipanema,Rio de Janeiro,Rio de Janeiro,1,942104.83,2026-11-14 18:01:25.150111,,t,Apartamento,3,103
-3,3,Voluntários da Pátria,Botafogo,Rio de Janeiro,Rio de Janeiro,1,1323758.44,2026-11-14 18:01:25.150111,,t,Apartamento,3,118
-4,4,do Imperador,Centro Histórico,Petrópolis,Rio de Janeiro,1,648957.32,2026-11-14 18:01:25.150111,,t,Sítio,4,414
-5,5,Francisco Glicério,Centro,Campinas,São Paulo,1,395691.29,2026-11-14 18:01:25.150111,,t,Apartamento,1,54
-6,6,Ana Costa,Gonzaga,Santos,São Paulo,1,482343.45,2026-11-14 18:01:25.150111,,t,Apartamento,1,62
-7,7,Afonso Pena,Centro,Belo Horizonte,Minas Gerais,1,1385339.68,2026-11-14 18:01:25.150111,,t,Apartamento,3,144
-8,8,Direita,Centro Histórico,Ouro Preto,Minas Gerais,1,529641.82,2026-11-14 18:01:25.150111,,t,Casa,4,181
-9,9,Jerônimo Monteiro,Centro,Vitória,Espírito Santo,1,1365126.21,2026-11-14 18:01:25.150111,,t,Sala Comercial,0,473
-10,10,Augusta,Vila Madalena,São Paulo,São Paulo,1,300000.42,2026-11-14 18:01:25.150111,,t,Sítio,2,540
-11,11,Jerônimo Monteiro,Jardim da Penha,Vitória,Espírito Santo,2,1375785.7,2026-11-14 18:01:25.150111,,t,Apartamento,1,43
-12,12,XV de Novembro,Centro,Curitiba,Paraná,1,1077974.1,2026-11-14 18:01:25.150111,,t,Sala Comercial,0,46
-13,13,Nossa Senhora de Copacabana,Copacabana,Rio de Janeiro,Rio de Janeiro,2,1134840.34,2026-11-14 18:01:25.150111,,t,Sala Comercial,0,149
-14,14,do Catete,Catete,Rio de Janeiro,Rio de Janeiro,1,1185790.1,2026-11-14 18:01:25.150111,,t,Terreno,0,547
-15,15,Visconde de Pirajá,Ipanema,Rio de Janeiro,Rio de Janeiro,2,2373028.52,2026-11-14 18:01:25.150111,,t,Apartamento,3,102
-16,16,Voluntários da Pátria,Botafogo,Rio de Janeiro,Rio de Janeiro,2,655330.8,2026-11-14 18:01:25.150111,,t,Sala Comercial,0,54
-17,17,do Imperador,Centro Histórico,Petrópolis,Rio de Janeiro,1,293062.56,2026-11-14 18:01:25.150111,,t,Sítio,2,115
-18,18,Roberto Silveira,Centro,Niterói,Rio de Janeiro,2,2859680.52,2026-11-14 18:01:25.150111,,t,Apartamento,4,168
-19,19,Augusta,Centro,São Paulo,São Paulo,1,1176950.06,2026-11-14 18:01:25.150111,,t,Apartamento,3,112
-20,20,dos Pinheiros,Pinheiros,São Paulo,São Paulo,1,775961.71,2026-11-14 18:01:25.150111,,t,Apartamento,1,53
-21,21,Francisco Glicério,Centro,Campinas,São Paulo,2,1913481.9,2026-11-14 18:01:25.150111,,t,Apartamento,3,138
-22,22,Ana Costa,Gonzaga,Santos,São Paulo,2,2629437.46,2026-11-14 18:01:25.150111,,t,Apartamento,4,135
-23,23,Afonso Pena,Centro,Belo Horizonte,Minas Gerais,1,462792.59,2026-11-14 18:01:25.150111,,t,Sala Comercial,0,532
-24,24,Direita,Centro Histórico,Ouro Preto,Minas Gerais,2,2491792.08,2026-11-14 18:01:25.150111,,t,Sala Comercial,0,519
-25,25,Jerônimo Monteiro,Centro,Vitória,Espírito Santo,1,722655,2026-11-14 18:01:25.150111,,t,Apartamento,1,47
-26,26,XV de Novembro,Centro,Curitiba,Paraná,1,508226.36,2026-11-14 18:01:25.150111,,t,Apartamento,1,47
-27,27,Nossa Senhora de Copacabana,Leme,Rio de Janeiro,Rio de Janeiro,2,844408.42,2026-11-14 18:01:25.150111,,t,Sala Comercial,0,467
-28,28,Augusta,Vila Madalena,São Paulo,São Paulo,1,246776.59,2026-11-14 18:01:25.150111,,t,Casa,1,135
-29,29,Afonso Pena,Eldorado,Belo Horizonte,Minas Gerais,2,1630786.22,2026-11-14 18:01:25.150111,,t,Apartamento,1,56
-30,30,XV de Novembro,Centro,Curitiba,Paraná,1,530068.04,2026-11-14 18:01:25.150111,,t,Apartamento,1,43
+1,1,Nossa Senhora de Copacabana,Copacabana,Rio de Janeiro,Rio de Janeiro,2,1775642.16,2026-11-15 14:30:51.872147,,t,Sítio,3,505
+2,2,Visconde de Pirajá,Ipanema,Rio de Janeiro,Rio de Janeiro,1,942104.83,2026-11-15 14:30:51.872147,,t,Apartamento,3,103
+3,3,Voluntários da Pátria,Botafogo,Rio de Janeiro,Rio de Janeiro,1,1323758.44,2026-11-15 14:30:51.872147,,t,Apartamento,3,118
+4,4,do Imperador,Centro Histórico,Petrópolis,Rio de Janeiro,1,648957.32,2026-11-15 14:30:51.872147,,t,Sítio,4,414
+5,5,Francisco Glicério,Centro,Campinas,São Paulo,1,395691.29,2026-11-15 14:30:51.872147,,t,Apartamento,1,54
+6,6,Ana Costa,Gonzaga,Santos,São Paulo,1,482343.45,2026-11-15 14:30:51.872147,,t,Apartamento,1,62
+7,7,Afonso Pena,Centro,Belo Horizonte,Minas Gerais,1,1385339.68,2026-11-15 14:30:51.872147,,t,Apartamento,3,144
+8,8,Direita,Centro Histórico,Ouro Preto,Minas Gerais,1,529641.82,2026-11-15 14:30:51.872147,,t,Casa,4,181
+9,9,Jerônimo Monteiro,Centro,Vitória,Espírito Santo,1,1365126.21,2026-11-15 14:30:51.872147,,t,Sala Comercial,0,473
+10,10,Augusta,Vila Madalena,São Paulo,São Paulo,1,300000.42,2026-11-15 14:30:51.872147,,t,Sítio,2,540
+11,11,Jerônimo Monteiro,Jardim da Penha,Vitória,Espírito Santo,2,1375785.7,2026-11-15 14:30:51.872147,,t,Apartamento,1,43
+12,12,XV de Novembro,Centro,Curitiba,Paraná,1,1077974.1,2026-11-15 14:30:51.872147,,t,Sala Comercial,0,46
+13,13,Nossa Senhora de Copacabana,Copacabana,Rio de Janeiro,Rio de Janeiro,2,1134840.34,2026-11-15 14:30:51.872147,,t,Sala Comercial,0,149
+14,14,do Catete,Catete,Rio de Janeiro,Rio de Janeiro,1,1185790.1,2026-11-15 14:30:51.872147,,t,Terreno,0,547
+15,15,Visconde de Pirajá,Ipanema,Rio de Janeiro,Rio de Janeiro,2,2373028.52,2026-11-15 14:30:51.872147,,t,Apartamento,3,102
+16,16,Voluntários da Pátria,Botafogo,Rio de Janeiro,Rio de Janeiro,2,655330.8,2026-11-15 14:30:51.872147,,t,Sala Comercial,0,54
+17,17,do Imperador,Centro Histórico,Petrópolis,Rio de Janeiro,1,293062.56,2026-11-15 14:30:51.872147,,t,Sítio,2,115
+18,18,Roberto Silveira,Centro,Niterói,Rio de Janeiro,2,2859680.52,2026-11-15 14:30:51.872147,,t,Apartamento,4,168
+19,19,Augusta,Centro,São Paulo,São Paulo,1,1176950.06,2026-11-15 14:30:51.872147,,t,Apartamento,3,112
+20,20,dos Pinheiros,Pinheiros,São Paulo,São Paulo,1,775961.71,2026-11-15 14:30:51.872147,,t,Apartamento,1,53
+21,21,Francisco Glicério,Centro,Campinas,São Paulo,2,1913481.9,2026-11-15 14:30:51.872147,,t,Apartamento,3,138
+22,22,Ana Costa,Gonzaga,Santos,São Paulo,2,2629437.46,2026-11-15 14:30:51.872147,,t,Apartamento,4,135
+23,23,Afonso Pena,Centro,Belo Horizonte,Minas Gerais,1,462792.59,2026-11-15 14:30:51.872147,,t,Sala Comercial,0,532
+24,24,Direita,Centro Histórico,Ouro Preto,Minas Gerais,2,2491792.08,2026-11-15 14:30:51.872147,,t,Sala Comercial,0,519
+25,25,Jerônimo Monteiro,Centro,Vitória,Espírito Santo,1,722655,2026-11-15 14:30:51.872147,,t,Apartamento,1,47
+26,26,XV de Novembro,Centro,Curitiba,Paraná,1,508226.36,2026-11-15 14:30:51.872147,,t,Apartamento,1,47
+27,27,Nossa Senhora de Copacabana,Leme,Rio de Janeiro,Rio de Janeiro,2,844408.42,2026-11-15 14:30:51.872147,,t,Sala Comercial,0,467
+28,28,Augusta,Vila Madalena,São Paulo,São Paulo,1,246776.59,2026-11-15 14:30:51.872147,,t,Casa,1,135
+29,29,Afonso Pena,Eldorado,Belo Horizonte,Minas Gerais,2,1630786.22,2026-11-15 14:30:51.872147,,t,Apartamento,1,56
+30,30,XV de Novembro,Centro,Curitiba,Paraná,1,530068.04,2026-11-15 14:30:51.872147,,t,Apartamento,1,43
